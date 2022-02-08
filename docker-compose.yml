@@ -1,0 +1,7 @@
+version: "3.9"
+services:
+  client:
+    build: ./
+    ports:
+      - "90:90"
+    container_name: film-catalog
