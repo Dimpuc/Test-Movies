@@ -10,7 +10,7 @@ export const formSchema = Yup.object().shape({
     .matches(/^\S*$/, "Whitespace is not allowed")
     .required("Password is required")
     .min(4, "Password length should be at least 4 characters")
-    .max(10, "Password length should be less 10 characters")
+    .max(10, "Password length should be less then 10 characters")
     .equals([Yup.ref("password")], "Passwords do not match"),
   confirmPassword: Yup.string()
     .required("Confirm Password is required")
