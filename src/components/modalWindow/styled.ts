@@ -24,7 +24,7 @@ export const SModalWindowWrapper = styled.div<ModalPropsStyle>`
 
 export const SModalWindow = styled.div<ModalPropsStyle>`
   width: 500px;
-  height: 400px;
+  height: 450px;
   background-color: white;
   transition: 0.4s all;
   transform: scale(${(props) => props.transform});

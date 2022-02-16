@@ -11,7 +11,7 @@ export const SLogin = styled.div`
   align-items: center
   flex-direction: column;
   width: 500px;
-  height: 400px;
+  height: 450px;
   margin-top: 50px;
   box-shadow: #3333 0px 4px 12px;
 

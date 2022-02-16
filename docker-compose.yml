@@ -3,5 +3,5 @@ services:
   client:
     build: ./
     ports:
-      - "90:90"
-    container_name: film-catalog
+      - "80:80"
+    container_name: test-movies-test

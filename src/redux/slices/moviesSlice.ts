@@ -6,16 +6,19 @@ import {
   SerializedError,
 } from "@reduxjs/toolkit";
 import { instance } from "../../libs/axios";
+import { RequestErrors } from "../../types/enum";
 import { AuthStates } from "../slices/authSlice";
 
 export interface movieSliceState {
   movies: IMovies[];
+  sortMovies: IMovies[];
   loading: AuthStates;
   error?: SerializedError;
 }
 
 const initialState = {
   movies: [],
+  sortMovies: [],
   loading: AuthStates.IDLE,
   error: null,
 };
@@ -24,12 +27,15 @@ export const createMovie = createAsyncThunk(
   "movie/create",
   async (credentials: any, thunkAPI) => {
     try {
-      console.log(credentials, "credentials");
-      const response = await instance.post(`/movies`, credentials);
-      console.log(response, "response");
-      if (response?.status === 200) {
-        console.log(response.data.data, "test");
-        thunkAPI.dispatch(addMovies(response.data.data));
+      const {
+        data: { error, data },
+      } = await instance.post(`/movies`, credentials);
+      if (!error) {
+        thunkAPI.dispatch(addMovies(data));
+      } else {
+        if (error.code === RequestErrors.MOVIE_EXISTS) {
+          alert("MOVIE EXISTS");
+        }
       }
     } catch (error) {
       throw new Error(error);
@@ -60,7 +66,6 @@ export const uploadMovie = createAsyncThunk(
         credentials.formData
       );
       if (response?.status === 200) {
-        console.log(response.data.data, "data");
         thunkAPI.dispatch(setUploadMovies(response.data.data));
       }
     } catch (error) {
@@ -75,7 +80,6 @@ export const deleteMovie = createAsyncThunk(
     try {
       const { id } = credentials;
       const response = await instance.delete(`/movies/${id}`);
-      console.log(response, "response");
       if (response?.status === 200) {
         thunkAPI.dispatch(setDeleteMovie(id));
       }
@@ -91,7 +95,6 @@ export const getInfoMovies = createAsyncThunk(
     try {
       const { id } = credentials;
       const response = await instance.get(`/movies/${id}`);
-      console.log(response.data, "response");
       if (response?.status === 200) {
         thunkAPI.dispatch(setMoviesInfo(response.data.data));
       }
@@ -104,15 +107,18 @@ export const getInfoMovies = createAsyncThunk(
 export const SearchByMovieTitle = createAsyncThunk(
   "movie/SearchByMovieTitle",
   async (credentials: any, thunkAPI) => {
-    console.log(credentials, "credentials");
+    let response;
     try {
-      const response = await instance.get(`/movies?title=${credentials}`);
-      console.log(response.data, "response");
+      if (credentials.length > 0) {
+        response = await instance.get(`/movies?title=${credentials}`);
+      } else {
+        response = await instance.get(`/movies`);
+      }
       if (response?.status === 200) {
         thunkAPI.dispatch(setMovies(response.data.data));
       }
     } catch (error) {
-      throw new Error(error);
+      throw new Error(err);
     }
   }
 );
@@ -128,6 +134,7 @@ export const moviesSlice = createSlice({
       state.movies = [...state.movies, ...action.payload];
     },
     addMovies: (state, action: PayloadAction<IMovies[]>) => {
+      console.log(action.payload, "action.payload");
       state.movies = [...state.movies, action.payload];
     },
     setDeleteMovie: (state, action) => {
@@ -152,4 +159,5 @@ export const {
   setMoviesInfo,
   addMovies,
   setMovies,
+  setSortMovies,
 } = moviesSlice.actions;

@@ -14,6 +14,19 @@ declare interface IInput {
   errors?: DeepMap<any, FieldError>;
 }
 
+declare interface IISelect {
+  register?: (
+    Ref: string,
+    // eslint-disable-next-line
+    RegisterOptions?: any
+  ) => {
+    name: string;
+    // eslint-disable-next-line
+    ref: React.Ref<any>;
+  };
+  // eslint-disable-next-line
+}
+
 declare interface IMovies {
   id: number;
   title: string;

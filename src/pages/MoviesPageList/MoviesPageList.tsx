@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { MovieComponent } from "../../components/MovieComponent/MovieComponent";
 import { SearchByMovieTitle, setMovies } from "../../redux/slices/moviesSlice";
@@ -17,6 +18,7 @@ interface sortTitle {
 
 export const MoviesPageList = () => {
   const movies = useAppSelector((state) => state.moviesReducer.movies);
+  const [title, setTitle] = useState("");
 
   const dispatch = useDispatch();
 
@@ -36,8 +38,11 @@ export const MoviesPageList = () => {
   };
 
   const filter = (e: any) => {
-    const searchTitle = e.target.value;
-    dispatch(SearchByMovieTitle(searchTitle));
+    setTitle(e.target.value);
+    if (title.length === 1) {
+      dispatch(SearchByMovieTitle({}));
+    }
+    dispatch(SearchByMovieTitle(title));
   };
 
   return (
@@ -53,7 +58,9 @@ export const MoviesPageList = () => {
       <SMoviesListContainer>
         <SMoviesList>
           {movies &&
-            movies.map((item) => <MovieComponent key={item} movie={item} />)}
+            movies.map((item: IMovies) => (
+              <MovieComponent key={item.id} movie={item} />
+            ))}
         </SMoviesList>
       </SMoviesListContainer>
     </SMoviesListPage>

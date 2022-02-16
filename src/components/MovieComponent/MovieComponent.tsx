@@ -17,12 +17,12 @@ interface MovieComponentProps {
 
 interface Actors {
   name: string;
+  id: number;
 }
 
 export const MovieComponent: FC<MovieComponentProps> = (movie) => {
   const [detailedVisible, setDetailVisible] = useState(false);
   const dispatch = useDispatch();
-
 
   const getDetailedInfo = () => {
     dispatch(getInfoMovies({ id: movie.movie.id }));
@@ -46,11 +46,13 @@ export const MovieComponent: FC<MovieComponentProps> = (movie) => {
                 movie.movie.actors.map((info: Actors, index) => {
                   if (index + 1 === movie.movie.actors.length) {
                     return (
-                      <SMoviesCartText key={index}>{info.name}</SMoviesCartText>
+                      <SMoviesCartText key={info.id}>
+                        {info.name}
+                      </SMoviesCartText>
                     );
                   } else {
                     return (
-                      <SMoviesCartText key={index}>
+                      <SMoviesCartText key={info.id}>
                         {info.name + "," + "\xa0"}
                       </SMoviesCartText>
                     );

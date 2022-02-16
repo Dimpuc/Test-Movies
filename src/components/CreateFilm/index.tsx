@@ -1,11 +1,13 @@
+import { yupResolver } from "@hookform/resolvers/yup";
 import { Chip } from "@mui/material";
-import { FC, useState } from "react";
-import { useForm } from "react-hook-form";
+import { ChangeEvent, FC, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-
+import Select from "react-select";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 import { createMovie } from "../../redux/slices/moviesSlice";
+import { FormatOptions } from "./data";
 import {
   CreateForm,
   ButtonWrapper,
@@ -14,23 +16,29 @@ import {
   ActorAddWrapper,
   ChipsWrapper,
 } from "./styled";
+import { formSchema } from "./validation";
 
 interface createFilmProps {
   handleShowModal(): void;
 }
 
 export const CreateFilm: FC<createFilmProps> = ({ handleShowModal }) => {
-  const dispatch = useDispatch();
   const {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
-  } = useForm();
+    reset,
+    control,
+    formState: { errors, isValid, isDirty },
+  } = useForm({
+    mode: "onChange",
+    resolver: yupResolver(formSchema),
+  });
 
   const [actorList, setActorList] = useState<string[]>([]);
-  const [newMovies, setNewMovies] = useState<IMovies[]>([]);
-  const { reset } = useForm();
+  const [controls, setControl] = useState(0);
+
+  const dispatch = useDispatch();
 
   const actor = watch("actors");
 
@@ -39,41 +47,32 @@ export const CreateFilm: FC<createFilmProps> = ({ handleShowModal }) => {
   };
 
   const onSubmit = (data: any) => {
-    console.log(data);
-
-    if (
-      data.title.length > 0 &&
-      data.year.length > 0 &&
-      data.format.length > 0 &&
-      data.actors.length > 0
-    ) {
-      !actorList.length
-        ? dispatch(
-            createMovie({
-              ...data,
-              year: +data.year,
-              actors: [data.actors],
-            })
-          )
-        : dispatch(
-            createMovie({
-              ...data,
-              year: +data.year,
-              actors: actorList,
-            })
-          );
-
-      reset();
-
-      handleShowModal();
+    if (data.format === undefined) {
+      alert("Choose a format");
     } else {
-      alert("Please fill in the fields!");
+      dispatch(
+        createMovie({
+          ...data,
+          year: +data.year,
+          format: data.format.value,
+          actors: !actorList.length ? [data.actors] : actorList,
+        })
+      );
+      reset();
+      handleShowModal();
     }
-    setNewMovies(data);
   };
 
   const handleDelete = (actor: string) => {
     setActorList(actorList.filter((item) => item !== actor));
+  };
+
+  const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value.length >= 2) {
+      setControl(e.target.value.length);
+    } else {
+      setControl(0);
+    }
   };
 
   return (
@@ -83,13 +82,45 @@ export const CreateFilm: FC<createFilmProps> = ({ handleShowModal }) => {
         label="Name of film"
         register={register}
         name="title"
+        errors={errors}
       />
-      <Input type="number" label="Year" register={register} name="year" />
-      <Input type="text" label="Format" register={register} name="format" />
+      <Input
+        type="number"
+        label="Year"
+        register={register}
+        errors={errors}
+        name="year"
+      />
+      <Controller
+        name="format"
+        control={control}
+        render={({ field }) => (
+          <Select
+            {...field}
+            defaultValue={FormatOptions[0]}
+            options={FormatOptions}
+          />
+        )}
+      />
+
       <ActorWrapper>
         <ActorAddWrapper>
-          <Input type="text" label="Actors" register={register} name="actors" />
-          <AddActorButton onClick={handleAddActor}>Add to list</AddActorButton>
+          <Input
+            type="text"
+            label="Actors"
+            onChange={handleOnChange}
+            register={register}
+            name="actors"
+            required={actorList.length > 0 ? false : true}
+            errors={errors}
+          />
+          <AddActorButton
+            type="button"
+            disabled={!controls}
+            onClick={handleAddActor}
+          >
+            Add to list
+          </AddActorButton>
         </ActorAddWrapper>
         <ChipsWrapper>
           {actorList.length ? (

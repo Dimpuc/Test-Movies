@@ -12,7 +12,9 @@ export const ButtonWrapper = styled.div`
 export const AddActorButton = styled.button`
   width: 140px;
   height: 50px;
+  margin-left: 4px;
   cursor: pointer;
+  margin-top: 3px;
 `;
 
 export const ActorWrapper = styled.div``;
